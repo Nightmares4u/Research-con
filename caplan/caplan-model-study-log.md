@@ -175,3 +175,12 @@ The model would still retain a limited subset, but the mask would become structu
 ### Scope and caution
 
 This is my proposed extension of the current account, not an established result and not yet a claim of novelty. Establishing novelty would require reading the relevant attention and recognition-memory literature. Its value is that it adds a concrete mask-selection rule and makes falsifiable predictions.
+
+
+## My statistical dilution analogy for compact versus sparse spaces
+
+My intuition for compact versus sparse feature spaces comes from statistics. A fixed number of unusually large observations has a larger influence on a sample mean when the sample is small than when the sample is very large. The same perturbation is diluted by a larger denominator.
+
+The matched-filter model has an analogous inverse-denominator structure. Holding the number of attended features fixed, the expected overlap between two traces scales approximately as \(\nu^2/n\). When the feature space \(n\) is smaller, adding attended features to strong items has a more pronounced effect because the added features are more likely to overlap with other traces. When \(n\) is larger, that effect is diluted because the added features can spread through more possible coordinates.
+
+The analogy is structural, not an identity: a statistical sample size and a feature-space dimension are different quantities, and the model changes an interference distribution rather than a population-height mean. Still, both make the same comparative point: a fixed perturbation has a larger relative effect in a smaller available space.
