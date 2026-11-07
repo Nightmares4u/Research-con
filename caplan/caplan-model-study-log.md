@@ -148,3 +148,30 @@ I recognized the attention mask as a transformation from the full feature space 
 This creates irreversible information loss for the recognition representation. Once a coordinate has been masked out, the masked trace cannot determine its original value. In that precise sense, attentional masking is a many-to-one transformation and a projection-like reduction of the usable feature representation.
 
 This is my own linear-algebra framing of the model's masking mechanism, not a claim that the transformation itself is a new mathematical discovery.
+
+
+## My speculative extension: context-sensitive mask selection
+
+### Starting point in the current model
+
+The current account specifies the relevant feature subspace and the number of attended features, while treating the exact selected coordinates as random within that subspace. For example, a condition can increase attended phonological features or make more deep features available.
+
+### Extension idea
+
+Instead of selecting attended coordinates uniformly at random within a subspace, the probability that a feature is retained could depend on properties of the study and test context, such as:
+
+- **salience:** features that are perceptually distinctive or unusually emphasized;
+- **task relevance:** features useful for the participant's current goal; and
+- **context congruence:** features that match the retrieval context or cue.
+
+The model would still retain a limited subset, but the mask would become structured rather than exchangeable. A feature's selection probability would be a stated function of these variables, rather than a uniform draw.
+
+### Testable predictions
+
+1. Lures sharing task-relevant or context-congruent features with studied items should produce more false alarms than lures matched only on irrelevant features.
+2. Changing the retrieval goal should change which lures are confusable, even when the study list is identical.
+3. The structured-mask model should be compared against the random-mask model using held-out behavioural data, with complexity penalized rather than assumed to be an improvement.
+
+### Scope and caution
+
+This is my proposed extension of the current account, not an established result and not yet a claim of novelty. Establishing novelty would require reading the relevant attention and recognition-memory literature. Its value is that it adds a concrete mask-selection rule and makes falsifiable predictions.
