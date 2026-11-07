@@ -84,3 +84,35 @@ The RAM analogy is helpful if it is treated as a shared address space: holding a
 1. How does attentional subsetting determine which \(\nu\) features are retained and re-used at test?
 2. How does the model translate expected signal and noise into hits, false alarms, and \(d'\)?
 3. Why does the same framework predict near-null list-strength effects in sparse/deep feature spaces but larger effects in compact/phonological spaces?
+
+
+## Masking as a many-to-one mapping
+
+My linear-algebra connection: masking and forgetting feel like many-to-one mappings.
+
+A mask can be represented as a diagonal matrix. For example:
+
+\[
+W = \operatorname{diag}(1,0,1)
+\]
+
+maps
+
+\[
+(2,3,4) \mapsto (2,0,4).
+\]
+
+The middle coordinate has been excluded from the representation used for recognition. Knowing the masked vector and the mask cannot recover whether the original middle coordinate was 3, 99, or some other value. This is a genuinely many-to-one map: many full item vectors produce the same attended trace.
+
+There is a related but narrower analogy to row reduction. Given only a final row-echelon form, without its row-operation history, one generally cannot recover the unique original matrix: many row-equivalent matrices reduce to the same form. However, elementary row operations preserve rank and the relevant solution structure, and are reversible when the operations are retained. Masking is closer to projection or coordinate deletion because it explicitly removes information from the representation.
+
+### Why the model uses a mask
+
+Masking is the model's formal statement of selective attention. It assumes that recognition does not necessarily encode every possible feature of an item. Instead, attention selects a subset at study, and roughly the same subset is available at test.
+
+This does two jobs in the theory:
+
+1. It preserves selected features as signal when the studied item is probed again.
+2. It determines cross-talk: excluded features cannot contribute accidental overlap, while the retained subset's size relative to its feature space controls the expected overlap with other traces.
+
+Thus masking is not merely an information-loss operation. It is the mechanism that lets the model ask how different attentional selections can yield either low interference in sparse spaces or substantial interference in compact spaces.
