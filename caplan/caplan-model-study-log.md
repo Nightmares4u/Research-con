@@ -184,3 +184,21 @@ My intuition for compact versus sparse feature spaces comes from statistics. A f
 The matched-filter model has an analogous inverse-denominator structure. Holding the number of attended features fixed, the expected overlap between two traces scales approximately as \(\nu^2/n\). When the feature space \(n\) is smaller, adding attended features to strong items has a more pronounced effect because the added features are more likely to overlap with other traces. When \(n\) is larger, that effect is diluted because the added features can spread through more possible coordinates.
 
 The analogy is structural, not an identity: a statistical sample size and a feature-space dimension are different quantities, and the model changes an interference distribution rather than a population-height mean. Still, both make the same comparative point: a fixed perturbation has a larger relative effect in a smaller available space.
+
+
+## Sensitivity of expected overlap
+
+For two randomly subsetted item traces, expected pairwise overlap is:
+
+\[
+\mathbb{E}[\text{overlap}] \approx \frac{\nu^2}{n}.
+\]
+
+My reading of the sensitivity is:
+
+- Increasing feature-space size \(n\) reduces expected overlap inversely.
+- Increasing attended features per item \(\nu\) increases expected overlap quadratically, not exponentially.
+
+Thus a doubled \(\nu\) produces approximately four times the expected pairwise overlap, while a doubled \(n\) halves it. This shows why a modest increase in attended features can matter greatly in a compact subspace.
+
+Notation reminder: \(n\) is the total feature-space size, \(\nu\) is the attended-feature count per item, and \(L\) is the number of studied items that contribute competing traces.
