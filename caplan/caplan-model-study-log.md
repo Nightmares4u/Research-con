@@ -116,3 +116,26 @@ This does two jobs in the theory:
 2. It determines cross-talk: excluded features cannot contribute accidental overlap, while the retained subset's size relative to its feature space controls the expected overlap with other traces.
 
 Thus masking is not merely an information-loss operation. It is the mechanism that lets the model ask how different attentional selections can yield either low interference in sparse spaces or substantial interference in compact spaces.
+
+
+## List length, masking, and a capacity-limited extension
+
+### Safe interpretation of the current model
+
+Adding studied items does not automatically increase the amount of feature information discarded per item. If the attention mask for each item stays fixed, the per-item loss is fixed by that mask.
+
+What list length increases is cross-talk: more stored traces are superposed in the shared memory, so matching features have more possible non-target sources. Thus, in the current model:
+
+- more masking means more per-item feature information is excluded;
+- more studied items means more interference among retained traces.
+
+Both can harm recognition, but they are different mechanisms.
+
+### My speculative extension: capacity-limited attention
+
+A possible extension would make the number of attended features per item depend on study-list length. If attention has a fixed total budget, then adding more items could force the system to retain fewer features of each item. In that extended model, larger lists would have two effects:
+
+1. more cross-talk from more superposed traces; and
+2. greater per-item information loss because each item's mask becomes narrower.
+
+This is explicitly a speculative hypothesis, not a conclusion of Caplan's current matched-filter model. It would need a stated attention-budget rule and empirical or simulation tests before being presented as a model result.
