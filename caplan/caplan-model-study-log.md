@@ -139,3 +139,12 @@ A possible extension would make the number of attended features per item depend 
 2. greater per-item information loss because each item's mask becomes narrower.
 
 This is explicitly a speculative hypothesis, not a conclusion of Caplan's current matched-filter model. It would need a stated attention-budget rule and empirical or simulation tests before being presented as a model result.
+
+
+### My linear-algebra observation about the mask
+
+I recognized the attention mask as a transformation from the full feature space into a lower-dimensional attended subspace. When the mask contains zeros, it is rank-deficient: the excluded coordinates are mapped to zero, so distinct full item vectors can map to the same attended trace.
+
+This creates irreversible information loss for the recognition representation. Once a coordinate has been masked out, the masked trace cannot determine its original value. In that precise sense, attentional masking is a many-to-one transformation and a projection-like reduction of the usable feature representation.
+
+This is my own linear-algebra framing of the model's masking mechanism, not a claim that the transformation itself is a new mathematical discovery.
