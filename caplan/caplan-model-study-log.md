@@ -48,7 +48,7 @@ The first term is self-signal. The second is cross-talk from DOG. The word label
 
 ### Feature-space terms
 
-- \(N\): number of studied items in the list.
+- \(L\): number of studied items in the list.
 - \(n\): number of available feature coordinates in the shared feature space.
 - \(\nu\): number of attended features per item.
 
@@ -202,3 +202,73 @@ My reading of the sensitivity is:
 Thus a doubled \(\nu\) produces approximately four times the expected pairwise overlap, while a doubled \(n\) halves it. This shows why a modest increase in attended features can matter greatly in a compact subspace.
 
 Notation reminder: \(n\) is the total feature-space size, \(\nu\) is the attended-feature count per item, and \(L\) is the number of studied items that contribute competing traces.
+
+## 2026-11-21 — Second pass: the production mechanism, the decision rule, and the fits
+
+Added from the verified research report on the lab (Caplan & Guitard 2024, Caplan 2023, and the OSF code inventory). This is a read-through distillation, not yet worked by hand — to make it mine I need to re-derive the threshold and the ratio-of-ratios, and run `production_model.m`.
+
+### The three subspaces and their sizes
+
+Features split into three subspaces: phonological \(\pi\), orthographic \(\omega\), and semantic/deep \(\sigma\), with \(n_\sigma \gg n_\omega \simeq n_\pi\). The fitted values in the production paper are \(n_s = 128\) (shallow) and \(n_d = 512\) (deep), with \(\nu_\omega = 3\), \(\nu_\sigma = 2\), \(L = 50\). The size ordering is the whole game: the deep subspace is large, so attended subsets there are sparse; the phonological subspace is compact, so attended subsets there cannot be sparse.
+
+### The production mechanism — what the paper is actually about
+
+Reading aloud increases the attended phonological features: \(\nu_{\pi,\mathrm{aloud}} > \nu_{\pi,\mathrm{silent}}\). Because the phonological subspace is compact, its subsets cannot be sparse, so cross-talk \(V_{xy}\) is large — and that is why production shows a large list-strength effect, unlike other "strength" manipulations. The production advantage is bigger in mixed lists than in pure lists: in a pure-aloud list every item carries the same boost, so the advantage washes out in the comparison; in a mixed list the aloud items stand out against silent ones.
+
+This connects directly to my collision reframing: production is a manipulation that pushes \(\nu\) up inside a small \(n\), so \(\nu^2/n\) grows fast. The paper's empirical claim is that strength manipulations only produce list-strength effects when they operate in a compact subspace.
+
+### The decision rule — threshold, hits, false alarms, \(d'\)
+
+The criterion is set from the probe itself, not tuned after the fact:
+
+\[
+\theta_{i,c} = \frac{1}{2}\cdot\frac{\nu_{i,c}}{n}
+\]
+
+the midpoint between the expected target and lure means. The model derives the mean and variance of the matching-strength distribution in closed form — \(\mu_\mathrm{target}\) from \(\nu/n\) summed over subspaces, \(\sigma^2_\mathrm{lure} = L\cdot V_{xy}\), \(\sigma^2_\mathrm{target} = V_{xx} + (L-1)\cdot V_{xy}\) — then applies the pre-stated rule: an item is judged "old" if \(s_x > \theta\). Hits and false alarms come from the normal CDF via the error function, \(P(\mathrm{hit}) = 1 - (0.5 + 0.5\cdot\mathrm{erf}((\theta-\mu)/\sqrt{2\sigma^2}))\), and \(d' = \mu/\sqrt{0.5\cdot(Tvar+Lvar)}\).
+
+What struck me: the threshold and the \(d'\) computation are derived, not tuned after seeing the numbers. That is the same discipline as my preregistered 100-seed rule — the decision rule is fixed before the results.
+
+### List-strength effects and the ratio-of-ratios
+
+Caplan (2023) puts the sparse and compact regimes on one continuum: in the sparse regime (\(\nu \ll n\), deep features) cross-talk vanishes and the list-strength effect is near-null; when the attended space is compact, cross-talk is non-negligible and list-strength effects are large. One mechanism, not two.
+
+The diagnostic is the ratio-of-ratios:
+
+\[
+\mathrm{RoR} = \frac{d'(D\ \mathrm{mixed})/d'(S\ \mathrm{mixed})}{d'(D\ \mathrm{pure})/d'(S\ \mathrm{pure})}
+\]
+
+typically \(\approx 1\) for null effects. It is a dimensionless ratio that cancels scale — the same kind of diagnostic as a stability margin. This answers my question 3: the same framework predicts near-null effects in sparse/deep spaces and large effects in compact/phonological spaces because only the ratio of subset size to subspace size changes.
+
+### Duration extension
+
+Shallow features are accessed early, deep features later, so longer stimulus duration means more deep features encoded (\(\nu_\sigma\) grows with duration). Key mechanism: in pure-strong lists the model can mask out (disregard) the noisy shallow features and rely on deep ones; in mixed lists it cannot, because the threshold/mask must serve both item types. This is why duration (deep-feature strength) shows near-null list-strength effects while production (compact-space strength) does not. Same machinery, opposite prediction — which is what makes the framework falsifiable rather than flexible.
+
+### Homophone fit
+
+Fawcett et al. (2022): homophone lures share identical phonological features with a studied item. The technical care here is what I want to remember: when features are identical, a \(V_{xy}\) term becomes a \(V_{xx}\) term (factor 1 → 2), and a `corr_var` correction subtracts the double-counted covariance:
+
+\[
+d' = \frac{Tmu - Lmu}{\sqrt{0.5\cdot(Tvar + Lvar - corr\_var)}}
+\]
+
+The model handles the edge case by adjusting the variance bookkeeping, not by adding a new mechanism.
+
+### Fitting to data
+
+`production_lse_fit.m` fits the model to Bodner et al. (2014) Exp. 1 by direct search: a triple grid loop over \(\nu_\sigma\) (1…32) × \(\nu_\omega\) (1…64) × \(\nu_\pi\) (1…64), RMSD to 7 data points (hits/false alarms across 4 list conditions), log-likelihood \(\log L = -nn\cdot\log(\mathrm{rmsd}^2)\). Three to four parameters, fit to real data, compared by BIC elsewhere in the lab (Thomas & Caplan 2023: \(\Delta\mathrm{BIC} > 2\) = substantial). The fit earns its keep against the data rather than by adding parameters.
+
+### Code walkthrough — read from the OSF inventory, not yet run
+
+- `overlap_nm.m` (~30 lines): expected number of overlapping features between two randomly subsetted vectors, \(N_M \approx \nu_1\nu_2/n\). The conceptual heart. Flag carried over: the exact body past line 28 was inferred from its docstring and usage, not read directly — verify when opening it.
+- `production_model.m` (~170 lines): parameter-sensitivity sweep over amount of production (\(\nu_\pi = 1\ldots16\)) for pure/mixed × silent/aloud; computes \(\mu\), target/lure variances, \(d'\), \(\theta = \mu/2\), hits/FAs via erf. Produces paper Figures 3a,b,c.
+- `production_lse_fit.m`: the triple-loop grid fit above. The \(O(\nu_\sigma\cdot\nu_\omega\cdot\nu_\pi)\) loop with erf evaluations is straightforward to vectorize — a concrete first contribution.
+- `production_by_duration_model.m` and `duration_model.m`: production as a function of duration, and duration alone.
+- `homophones_fit.m`: the homophone fit with the `corr_var` correction.
+
+No MATLAB/Octave run has been done yet. Next step is to run `production_model.m` (Octave runs the .m files free) and reproduce Figures 3a,b,c, then re-derive \(\theta = \mu/2\) and the RoR by hand.
+
+### What this closes
+
+My next questions 2 and 3 from the first pass are now answered in outline: the decision rule (threshold, hits/FAs, \(d'\)) and the list-strength/RoR story. What remains is doing them by hand and running the code — and the two extension questions (capacity-limited attention, context-sensitive masks) are still mine to pose, not results.
